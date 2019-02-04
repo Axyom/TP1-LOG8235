@@ -7,19 +7,14 @@
 
 
 #include "CoreMinimal.h"
-
 #include "AIController.h"
-
-
-
+#include "PhysicsHelpers.h"
 #include "SDTAIController.generated.h"
 
 
 
 /**
-
 *
-
 */
 
 UCLASS(ClassGroup = AI, config = Game)
@@ -33,10 +28,8 @@ public:
 
 	virtual void Tick(float deltaTime) override;
 
-
-
 private:
 
-	enum State_t { DEFAULT, PICK, RUNAWAY, PURSUIT } m_state;
+	enum State_t { TURN, RUNAWAY, TURN } m_state;
 
 };

@@ -8,7 +8,6 @@
 
 #include "CoreMinimal.h"
 #include "AIController.h"
-#include "PhysicsHelpers.h"
 #include "SDTAIController.generated.h"
 
 
@@ -27,9 +26,11 @@ class SOFTDESIGNTRAINING_API ASDTAIController : public AAIController
 public:
 
 	virtual void Tick(float deltaTime) override;
+	void agentMovement(APawn* pawn, FVector force);
+	FVector velocityCalculator(FVector acceleration, float maxSpeed, FVector currentVelocity);
 
 private:
 
-	enum State_t { TURN, RUNAWAY, TURN } m_state;
+	enum State_t { TURN, RUNAWAY } m_state;
 
 };

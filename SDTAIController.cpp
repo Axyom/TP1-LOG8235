@@ -5,16 +5,17 @@
 #include "SoftDesignTraining.h"
 #include "SDTAIController.h"
 #include "Engine.h"
+#include <cstdlib>
 
 
 
 void ASDTAIController::Tick(float deltaTime)
 {
 	UWorld * World = GetWorld();
-	auto pawn = GetPawn();
+	APawn* pawn = GetPawn();
 
 	// hyperparametres
-	const float viewDistance = 500;
+	const float viewDistance = 80;
 
 	TArray<TEnumAsByte<EObjectTypeQuery>> TraceObjectTypes;
 	TraceObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_WorldStatic));
@@ -36,14 +37,35 @@ void ASDTAIController::Tick(float deltaTime)
 	}
 	else
 	{
-		pawn->AddMovementInput(pawn->GetActorForwardVector(), 1., true);
+		FVector someMovementVector = pawn->GetActorForwardVector();
+		agentMovement(pawn, someMovementVector);
 	}
 }
 
-void agentOnTheMove()
+/**
+* Moves and orientate the agent based on the force applied + small alteration to the movements
+* so that he doesn't move strait (randomized)
+**/
+void ASDTAIController::agentMovement(APawn* pawn, FVector acceleration) {
+	UPROPERTY(EditAnywhere)
+		float maxSpeed = 0.5f;
+	UPROPERTY(EditAnywhere)
+		double randomMovementAngle = 0.005;
+	if (rand() % 2 == 1) {
+		acceleration = acceleration.RotateAngleAxis(randomMovementAngle, FVector::UpVector);
+	}
+	else {
+		acceleration = acceleration.RotateAngleAxis(-randomMovementAngle, FVector::UpVector);
+	}
+	FVector newMovement = velocityCalculator(acceleration, maxSpeed, pawn->GetMovementInputVector());
+	pawn->AddMovementInput(newMovement, 1.f, true);
+	
+	// TODO: Fix this cancer, plz
+	// pawn->AddActorWorldRotation(newMovement.Rotation());
+}
 
-FVector velocityCalculator(FVector acceleration, float maxSpeed, FVector currentVelocity, float deltaTime) {
-	FVector newVelocity = currentVelocity + acceleration * deltaTime;
+FVector ASDTAIController::velocityCalculator(FVector acceleration, float maxSpeed, FVector currentVelocity) {
+	FVector newVelocity = currentVelocity + acceleration;
 	if (newVelocity.Size() > maxSpeed) {
 		newVelocity.Normalize();
 		newVelocity = newVelocity * maxSpeed;
